@@ -1,4 +1,7 @@
+##### `.gitignore`
+```text
 __pycache__/
 *.pyc
 *.log
 *.env
+.pytest_cache/
