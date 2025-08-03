@@ -34,9 +34,19 @@ jobs:
           flake8 src/ --max-line-length=120 --exclude=__init__.py
 
       - name: 运行单元测试
+        env:
+          PYTHONPATH: .
         run: |
           pip install pytest pytest-asyncio
           pytest src/ --verbose
+
+      - name: 失败时通知
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: 'your-channel'
+          text: 'Cloudflare 优选 IP 工作流失败！请检查日志。'
 
   cd:
     needs: ci
@@ -55,8 +65,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: 清理旧日志
+        run: |
+          rm -f cloudflare-optimizer.log
+
       - name: 运行优选 IP 脚本
         env:
+          PYTHONPATH: .
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_EMAIL: ${{ secrets.CF_EMAIL }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
@@ -70,3 +85,11 @@ jobs:
           name: optimizer-logs
           path: cloudflare-optimizer.log
           retention-days: 7
+
+      - name: 失败时通知
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: 'your-channel'
+          text: 'Cloudflare 优选 IP 部署失败！请检查日志。'
