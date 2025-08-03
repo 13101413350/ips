@@ -22,7 +22,8 @@ def update_dns_record(domain, ips):
     Returns:
         bool: 更新成功返回 True，否则 False。
     """
-    url = f"https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records"
+    base_url = f"https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}"
+    url = f"{base_url}/dns_records"
     try:
         # 获取当前 DNS 记录
         response = requests.get(url, headers=headers, params={"name": domain}, timeout=5)
