@@ -11,7 +11,7 @@ headers = {
 }
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(2), after=lambda retry_state: logging.info(f"DNS 更新重试 {retry_state.attempt_number}/3"))
 def update_dns_record(domain, ips):
     """更新 Cloudflare DNS A 记录。
 
@@ -25,13 +25,15 @@ def update_dns_record(domain, ips):
     url = f"https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records"
     try:
         # 获取当前 DNS 记录
-        response = requests.get(url, headers=headers, params={"name": domain})
+        response = requests.get(url, headers=headers, params={"name": domain}, timeout=5)
         response.raise_for_status()
         records = response.json().get("result", [])
+        logging.info(f"获取 {domain} DNS 记录：{len(records)} 条")
 
         # 删除旧记录
         for record in records:
-            requests.delete(f"{url}/{record['id']}", headers=headers)
+            requests.delete(f"{url}/{record['id']}", headers=headers, timeout=5)
+            logging.info(f"删除 DNS 记录 {domain} -> {record['content']}")
 
         # 添加新 A 记录
         for ip in ips:
@@ -42,7 +44,7 @@ def update_dns_record(domain, ips):
                 "ttl": 1,
                 "proxied": True
             }
-            response = requests.post(url, headers=headers, json=data)
+            response = requests.post(url, headers=headers, json=data, timeout=5)
             response.raise_for_status()
             logging.info(f"添加 DNS 记录 {domain} -> {ip}")
         return True
