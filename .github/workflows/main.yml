@@ -41,10 +41,11 @@ jobs:
           pytest src/ --verbose
 
       - name: 失败时通知
-        if: failure()
+        if: failure() && env.SLACK_BOT_TOKEN
         uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: 'your-channel'
           text: 'Cloudflare 优选 IP 工作流失败！请检查日志。'
 
@@ -87,9 +88,10 @@ jobs:
           retention-days: 7
 
       - name: 失败时通知
-        if: failure()
+        if: failure() && env.SLACK_BOT_TOKEN
         uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: 'your-channel'
           text: 'Cloudflare 优选 IP 部署失败！请检查日志。'
