@@ -22,7 +22,11 @@ async def test_speed(session, ip):
             if response.status == 200:
                 content = await response.read()
                 speed = len(content) / (asyncio.get_event_loop().time() - start_time) / 1024 / 1024
+                logging.info(f"IP {ip} 下载速度：{speed:.2f} MB/s")
                 return speed if speed >= MIN_SPEED else None
+            else:
+                logging.warning(f"IP {ip} 下载失败，状态码：{response.status}")
+                return None
     except Exception as e:
         logging.error(f"测试速度 {ip} 失败：{e}")
         return None
@@ -40,7 +44,9 @@ def test_delay(ip):
     try:
         response = pythonping.ping(ip, count=PING_COUNT, timeout=TIMEOUT)
         if response.success():
+            logging.info(f"IP {ip} 平均延迟：{response.rtt_avg_ms} ms")
             return response.rtt_avg_ms
+        logging.warning(f"IP {ip} ping 测试失败")
         return None
     except Exception as e:
         logging.error(f"测试延迟 {ip} 失败：{e}")
@@ -61,10 +67,12 @@ async def get_ip_info(ip, session, semaphore):
     """
     async with semaphore:
         try:
-            async with session.get(f"http://ip-api.com/json/{ip}") as response:
+            async with session.get(f"http://ip-api.com/json/{ip}", timeout=5) as response:
                 if response.status == 200:
                     data = await response.json()
+                    logging.info(f"IP {ip} 信息：国家={data.get('country', '')}, ISP={data.get('isp', '')}")
                     return {"country": data.get("country", ""), "isp": data.get("isp", "")}
+                logging.warning(f"获取 IP {ip} 信息失败，状态码：{response.status}")
                 return None
         except Exception as e:
             logging.error(f"获取 IP 信息 {ip} 失败：{e}")
@@ -86,14 +94,17 @@ async def test_ip(ip, session, isp, semaphore):
     try:
         ip_info = await get_ip_info(ip, session, semaphore)
         if not ip_info or ip_info["country"] not in ISP_REGIONS[isp]:
+            logging.warning(f"IP {ip} 地区 {ip_info.get('country', '未知')} 不符合 ISP {isp} 要求")
             return None
 
         delay = test_delay(ip)
         if delay is None or delay > MAX_DELAY:
+            logging.warning(f"IP {ip} 延迟 {delay}ms 超出限制 {MAX_DELAY}ms")
             return None
 
         speed = await test_speed(session, ip)
         if speed is None:
+            logging.warning(f"IP {ip} 速度不符合要求")
             return None
 
         return {
@@ -127,4 +138,5 @@ async def test_ips(ips, isp, ip_count):
             result = await future
             if result:
                 results.append(result)
+    logging.info(f"ISP {isp} 测试完成，优选 {len(results)} 个 IP")
     return sorted(results, key=lambda x: (x["delay"], -x["speed"]))[:ip_count]
