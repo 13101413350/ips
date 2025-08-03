@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch
 from src.utils import get_ip_list, check_system_resources
 
@@ -29,4 +28,4 @@ def test_check_system_resources_high_usage():
         mock_mem.return_value.percent = 85
         result = check_system_resources()
         assert result is False
-        mock_log.assert_called_with(f"系统资源紧张：CPU 90%，内存 85%")
+        mock_log.assert_called_with("系统资源紧张：CPU 90%，内存 85%")
