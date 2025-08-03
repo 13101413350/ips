@@ -1,1 +1,8 @@
-
+aiohttp==3.8.6
+requests==2.31.0
+pythonping==1.1.4
+tenacity==8.2.3
+psutil==5.9.5
+pytest==7.4.0
+pytest-asyncio==0.21.1
+flake8==7.1.2
