@@ -9,14 +9,16 @@
 - **CDN 加速**：启用 Cloudflare 代理，加速全球访问。
 - **自动化 DNS 更新**：通过 Cloudflare API 更新 DNS 记录，支持重试机制。
 - **CI/CD 集成**：使用 GitHub Actions 自动检查代码、运行测试和部署。
+- **日志与通知**：详细中文日志，失败时通过 Slack 通知（可选）。
 
 ## 前提条件
 - Python 3.8+
 - Cloudflare API Token（需要 `Zone:Edit` 和 `DNS:Edit` 权限）
 - Cloudflare 管理的域名
+- （可选）Slack Bot Token 用于失败通知
 
 ## 安装
 1. 克隆仓库：
    ```bash
    git clone https://github.com/yourusername/cloudflare-optimizer.git
-   cd cloudflare-optimizer# ips
+   cd cloudflare-optimizer
