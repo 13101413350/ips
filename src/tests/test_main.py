@@ -1,11 +1,16 @@
-import pytest
 from unittest.mock import patch
 from src.main import main
 
 
 @patch('src.utils.check_system_resources', return_value=True)
 @patch('src.utils.get_ip_list', return_value=["1.1.1.1"])
-@patch('src.ip_tester.test_ips', return_value=[{"ip": "1.1.1.1", "delay": 10, "speed": 10, "country": "Hong Kong", "isp": "Cloudflare"}])
+@patch('src.ip_tester.test_ips', return_value=[{
+    "ip": "1.1.1.1",
+    "delay": 10,
+    "speed": 10,
+    "country": "Hong Kong",
+    "isp": "Cloudflare"
+}])
 @patch('src.dns_manager.update_dns_record', return_value=True)
 def test_main_success(mock_dns, mock_test_ips, mock_get_ip, mock_resources):
     """测试主函数成功执行。"""
