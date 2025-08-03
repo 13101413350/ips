@@ -19,7 +19,7 @@ def test_delay_invalid_ip():
 @pytest.mark.asyncio
 async def test_speed_valid_ip():
     """测试有效 IP 的下载速度，使用模拟响应。"""
-    with patch("aiohttp.ClientSession.get", new=AsyncMock()) as mock_get:
+    with patch("aichttp.ClientSession.get", new=AsyncMock()) as mock_get:
         mock_response = AsyncMock()
         mock_response.status = 200
         mock_response.read = AsyncMock(return_value=b"0" * 5_000_000)  # 模拟 5MB 数据
