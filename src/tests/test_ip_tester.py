@@ -1,5 +1,4 @@
 import pytest
-import asyncio
 import aiohttp
 from src.ip_tester import test_delay, test_speed
 
