@@ -1,11 +1,10 @@
-import pytest
 from unittest.mock import patch
 from src.dns_manager import update_dns_record
 
 
 def test_update_dns_record_success_single():
     """测试成功更新单条 DNS 记录。"""
-    with patch('requests.get') as mock_get, patch('requests.delete') as mock_delete, patch('requests.post') as mock_post:
+    with patch('requests.get') as mock_get, patch('requests.post') as mock_post:
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"result": []}
         mock_post.return_value.status_code = 200
